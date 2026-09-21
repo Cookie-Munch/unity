@@ -68,6 +68,47 @@ namespace CookieMunch
         /// </summary>
         public bool ConsentRequired { get; }
 
+        /// <summary>
+        /// The US state law governing this player, when the server resolved one.
+        ///
+        /// Around twenty states have comprehensive laws now and they differ on what a
+        /// consent UI must do. Only the server can say which applies — a device's locale
+        /// gives a country at best, never a state — so this is null when the regime was
+        /// resolved on device.
+        /// </summary>
+        public UsStateLaw? StateLaw { get; }
+
+        /// <summary>One US state privacy law, as the server resolved it.</summary>
+        public sealed class UsStateLaw
+        {
+            public UsStateLaw(string id, string state, string name, bool universalOptOut, bool sensitiveOptIn, int minorOptInUnder)
+            {
+                Id = id;
+                State = state;
+                Name = name;
+                UniversalOptOut = universalOptOut;
+                SensitiveOptIn = sensitiveOptIn;
+                MinorOptInUnder = minorOptInUnder;
+            }
+
+            /// <summary>Stable id, e.g. <c>tdpsa</c>.</summary>
+            public string Id { get; }
+
+            /// <summary>Two-letter state code.</summary>
+            public string State { get; }
+
+            public string Name { get; }
+
+            /// <summary>The law requires honouring a universal opt-out signal.</summary>
+            public bool UniversalOptOut { get; }
+
+            /// <summary>Sensitive data needs opt-in consent rather than an opt-out.</summary>
+            public bool SensitiveOptIn { get; }
+
+            /// <summary>Opt-in required below this age for sale / targeted advertising; 0 = no rule.</summary>
+            public int MinorOptInUnder { get; }
+        }
+
         public Regulation(
             string region,
             RegionClass regionClass,
@@ -78,7 +119,8 @@ namespace CookieMunch
             bool defaultGranted,
             SignalFramework framework,
             bool forcedOptOut,
-            bool consentRequired)
+            bool consentRequired,
+            UsStateLaw? stateLaw = null)
         {
             Region = region ?? string.Empty;
             Class = regionClass;
@@ -90,6 +132,7 @@ namespace CookieMunch
             Framework = framework;
             ForcedOptOut = forcedOptOut;
             ConsentRequired = consentRequired;
+            StateLaw = stateLaw;
         }
 
         // EU 27 + EEA + UK, lowercase ISO 3166-1 alpha-2.
@@ -199,7 +242,25 @@ namespace CookieMunch
                 forced,
                 // An older server could omit this. Defaulting a missing bool to false would
                 // suppress every prompt on the planet, so it is derived instead.
-                MiniJson.GetBool(reg, "consentRequired") ?? !forced);
+                MiniJson.GetBool(reg, "consentRequired") ?? !forced,
+                ParseStateLaw(MiniJson.GetObject(reg, "stateLaw")));
+        }
+
+        private static UsStateLaw? ParseStateLaw(string? law)
+        {
+            if (law == null) return null;
+            var id = MiniJson.GetString(law, "id");
+            var state = MiniJson.GetString(law, "state");
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(state)) return null;
+            return new UsStateLaw(
+                id!,
+                state!,
+                MiniJson.GetString(law, "name") ?? id!,
+                // Prefer whether the duty is in force; fall back to whether the law
+                // mandates it at all, for a server predating the distinction.
+                MiniJson.GetBool(law, "universalOptOutInForce") ?? MiniJson.GetBool(law, "universalOptOut") ?? false,
+                MiniJson.GetBool(law, "sensitiveOptIn") ?? false,
+                MiniJson.GetInt(law, "minorOptInUnder") ?? 0);
         }
 
         // Lenient on purpose: a server that learns a new jurisdiction tomorrow must not

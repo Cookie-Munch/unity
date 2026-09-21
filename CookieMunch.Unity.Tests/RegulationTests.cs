@@ -143,4 +143,45 @@ public class RegulationTests
     [InlineData("")]
     public void AbsentOrMalformedPayloadsParseToNull(string body) =>
         Assert.Null(Regulation.FromConfigJson(body));
+
+    /// <summary>
+    /// Around twenty US states have comprehensive privacy laws that differ on what a
+    /// consent UI must do. Only the server can say which applies — a device's locale is a
+    /// country at best — so the SDK reads it from the config rather than guessing.
+    /// </summary>
+    public class UsStateLawTests
+    {
+        [Fact]
+        public void ParsesTheStateLawTheServerResolved()
+        {
+            const string body = "{\"regulation\":{\"region\":\"us-tx\",\"class\":\"us\"," +
+                "\"regulations\":{\"gdprApplies\":false,\"ccpaApplies\":true,\"lgpdApplies\":false}," +
+                "\"model\":\"opt-out\",\"defaultState\":\"granted\",\"framework\":\"gpp\"," +
+                "\"forcedOptOut\":false,\"consentRequired\":true,\"stateLaw\":{\"id\":\"tdpsa\"," +
+                "\"state\":\"TX\",\"name\":\"Texas Data Privacy and Security Act\"," +
+                "\"universalOptOut\":true,\"universalOptOutInForce\":true,\"sensitiveOptIn\":true,\"minorOptInUnder\":13}}}";
+            var law = Regulation.FromConfigJson(body)!.StateLaw;
+            Assert.NotNull(law);
+            Assert.Equal("tdpsa", law!.Id);
+            Assert.Equal("TX", law.State);
+            Assert.True(law.SensitiveOptIn);
+            Assert.Equal(13, law.MinorOptInUnder);
+        }
+
+        [Fact]
+        public void IsNullWhenTheServerNamedNoStateLaw()
+        {
+            const string body = "{\"regulation\":{\"region\":\"de\",\"class\":\"eu\"," +
+                "\"regulations\":{\"gdprApplies\":true,\"ccpaApplies\":false,\"lgpdApplies\":false}," +
+                "\"model\":\"opt-in\",\"defaultState\":\"denied\",\"framework\":\"tcf\"," +
+                "\"forcedOptOut\":false,\"consentRequired\":true}}";
+            Assert.Null(Regulation.FromConfigJson(body)!.StateLaw);
+        }
+
+        [Fact]
+        public void LocalResolutionDoesNotInventOne()
+        {
+            Assert.Null(Regulation.Resolve("us-tx").StateLaw);
+        }
+    }
 }

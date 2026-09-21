@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CookieMunch.Unity.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+667660f093c77c751cf675d103b15b12da78be10")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+405ee84345fc8fe52c148d87239dceca9dad48f7")]
 [assembly: System.Reflection.AssemblyProductAttribute("CookieMunch.Unity.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CookieMunch.Unity.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

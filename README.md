@@ -23,7 +23,7 @@ https://github.com/Cookie-Munch/unity.git
 ```csharp
 using CookieMunch;
 
-var consent = CookieMunchUnity.Create("cb-your-site-id", "https://cmp.example.com");
+var consent = CookieMunchUnity.Create("cb-your-site-id", "https://api.cookiemunch.net");
 consent.Load();
 
 // The device's locale says where it was SOLD. This asks the server, which sees the IP.
@@ -111,6 +111,6 @@ Inject `IConsentStorage` and `IConsentTransport` to test your own consent flow w
 network and no PlayerPrefs:
 
 ```csharp
-var consent = new CookieMunchConsent("cb-1", "https://cmp.example.com",
+var consent = new CookieMunchConsent("cb-1", "https://api.cookiemunch.net",
     new InMemoryConsentStorage(), new NullConsentTransport(), region: "de");
 ```

@@ -2,7 +2,7 @@
 
 Consent management for Unity games: GDPR, CCPA and LGPD. It tells you **whether you need
 to prompt at all**, gates your ad and analytics SDKs until consent is granted, and logs
-every decision to your self-hosted Cookie Munch server.
+every decision to the Cookie Munch API.
 
 Same consent record, same categories and the same jurisdiction table as the web embed and
 the iOS, Android, Flutter and React Native SDKs — a decision made in your game and one made

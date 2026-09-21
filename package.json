@@ -1,0 +1,11 @@
+{
+  "name": "net.cookiemunch.consent",
+  "version": "0.1.0",
+  "displayName": "Cookie Munch Consent",
+  "description": "Consent management for Unity games — GDPR / CCPA / LGPD. Tells you whether you need to prompt at all, gates your ad and analytics SDKs until consent is granted, and logs every decision to your self-hosted Cookie Munch server.",
+  "unity": "2021.3",
+  "license": "MIT",
+  "keywords": ["consent", "gdpr", "ccpa", "privacy", "cmp", "cookies"],
+  "author": { "name": "Cookie Munch", "url": "https://cookiemunch.net" },
+  "documentationUrl": "https://cookiemunch.net/docs/mobile-sdks"
+}

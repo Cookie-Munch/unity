@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The Unity SDK's pure-C# core, compiled outside Unity so it can be unit-tested with
+    `dotnet test`. Unity itself consumes Runtime/ directly as a package (see package.json);
+    this project exists only to prove the logic, and deliberately excludes the files that
+    reference UnityEngine.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>CookieMunch.Unity.Core</AssemblyName>
+    <RootNamespace>CookieMunch</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Runtime/*.cs" Exclude="Runtime/Unity*.cs;Runtime/PlayerPrefs*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- MiniJson is internal because nothing outside this SDK should depend on a reader
+         this small. It is still tested directly: a hand-written parser that is only
+         exercised through the two callers above is a parser whose edge cases are untested. -->
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>CookieMunch.Unity.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>

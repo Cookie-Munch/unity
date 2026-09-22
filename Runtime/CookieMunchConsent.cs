@@ -159,6 +159,21 @@ namespace CookieMunch
         public void SetSubjectId(string? id) => _subjectId = string.IsNullOrEmpty(id) ? null : id;
 
         /// <summary>
+        /// The language to ask the server for, e.g. <c>de-AT</c>. Defaults to the running
+        /// culture; set it explicitly when your game has its own language picker, because a
+        /// player's chosen language is a better answer than the console's.
+        /// </summary>
+        public string Language { get; set; } =
+            System.Globalization.CultureInfo.CurrentUICulture.Name;
+
+        /// <summary>
+        /// The prompt's words in that language, once the server has answered. Null until
+        /// <see cref="RefreshRegulationAsync"/> runs — a prompt falls back to English, so a
+        /// game that has never reached the network still asks.
+        /// </summary>
+        public LocalizedCopy? Copy { get; private set; }
+
+        /// <summary>
         /// Ask the server which regime applies, based on the IP it sees, and adopt the answer.
         /// Never throws: offline, or against a server too old to return a regulation block,
         /// the locally resolved regime stays in place — a failed refresh must never leave the
@@ -168,12 +183,18 @@ namespace CookieMunch
         {
             try
             {
-                var body = await _transport.GetAsync($"{_apiUrl}/config/{Uri.EscapeDataString(_cbid)}", Region)
+                // `lang` asks for the player's language; the same call brings back the regime
+                // and the prompt's words, so a build never carries forty catalogues of its own.
+                var language = Language;
+                var query = string.IsNullOrEmpty(language) ? string.Empty : $"?lang={Uri.EscapeDataString(language)}";
+                var body = await _transport.GetAsync($"{_apiUrl}/config/{Uri.EscapeDataString(_cbid)}{query}", Region)
                     .ConfigureAwait(false);
                 if (body != null)
                 {
                     var parsed = Regulation.FromConfigJson(body);
                     if (parsed != null) _serverRegulation = parsed;
+                    var localized = LocalizedCopy.FromConfigJson(body);
+                    if (localized != null) Copy = localized;
                 }
             }
             catch

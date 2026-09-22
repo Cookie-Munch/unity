@@ -122,7 +122,12 @@ public class CookieMunchConsentTests
 
         Assert.True(c.ApplicableRegulation.CcpaApplies);
         Assert.False(c.ApplicableRegulation.GdprApplies);
-        Assert.Equal(("https://cmp.example.com/config/cb-1", "de"), Assert.Single(transport.Gets));
+        // The same call asks for the player's language, so the response also carries the
+        // prompt's words — a build never ships forty catalogues of its own.
+        var (url, sentRegion) = Assert.Single(transport.Gets);
+        Assert.StartsWith("https://cmp.example.com/config/cb-1", url);
+        Assert.Contains("lang=", url);
+        Assert.Equal("de", sentRegion);
     }
 
     /// <summary>Offline, or a server not yet upgraded. Either way the game keeps an answer.</summary>

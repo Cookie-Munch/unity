@@ -54,6 +54,8 @@ namespace CookieMunch
 
         /// <summary>
         /// A URL parameter carrying this decision, for when script evaluation is unavailable.
+        /// The page ignores it unless the site has <c>webview.urlConsent</c> enabled (off by
+        /// default); prefer <see cref="JavaScript"/>.
         /// <para>
         /// The value is percent-encoded TWICE, and that is deliberate: <see cref="Serialize"/>
         /// is the cookie value, which is itself already encoded, and the reader unwraps both

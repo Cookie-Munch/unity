@@ -98,6 +98,10 @@ myWebViewPlugin.EvaluateJavaScript(WebViewBridge.JavaScript(consent.State));
 myWebViewPlugin.Load(WebViewBridge.Url("https://example.com/privacy", consent.State));
 ```
 
+Prefer the script bridge. The URL fallback is ignored unless the site has
+`webview.urlConsent` set to `true` (off by default — anyone can put a decision in a link);
+see [Consent in the URL](https://cookiemunch.net/docs/integrating-url-consent).
+
 ## Testing
 
 The core is plain C# with no `UnityEngine` references, so it runs under `dotnet test`
